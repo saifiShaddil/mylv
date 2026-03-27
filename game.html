@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Our Love Story ❤️</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Inter:wght@300;500&display=swap"
+        rel="stylesheet">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+
+    <style>
+        body {
+            margin: 0;
+            background: #000;
+            color: #fff;
+            font-family: Inter;
+            overflow: hidden;
+        }
+
+        .scene {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .scene.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .text {
+            font-family: 'Great Vibes';
+            font-size: 2.5rem;
+            text-align: center;
+            line-height: 1.4;
+            text-shadow: 0 0 25px #ff4da6;
+            max-width: 80%;
+        }
+
+        .next {
+            margin-top: 20px;
+            padding: 12px 25px;
+            background: #ff4da6;
+            border-radius: 25px;
+            cursor: pointer;
+        }
+
+        .back {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 9999;
+            padding: 10px 15px;
+            background: #ff4da6;
+            border-radius: 20px;
+            cursor: pointer;
+        }
+
+        .game {
+            width: 100%;
+            height: 50%;
+            position: relative;
+        }
+
+        .heart {
+            position: absolute;
+            font-size: 3rem;
+            cursor: pointer;
+        }
+
+        /* QUIZ */
+        .option {
+            margin: 10px;
+            padding: 14px;
+            background: rgba(255, 77, 166, 0.2);
+            border-radius: 20px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .option:hover {
+            transform: scale(1.05);
+            background: rgba(255, 77, 166, 0.4);
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="back" onclick="location.href='index.html'">⬅ Back</div>
+
+    <!-- STORY SCENES -->
+
+    <div class="scene active" id="scene1">
+        <div class="text">
+            Our first call… 📞 <br>
+            I was nervous… my heart racing…<br><br>
+            “Love begins in a moment…” ❤️
+        </div>
+        <div class="next" onclick="next()">Continue</div>
+    </div>
+
+    <div class="scene" id="scene2">
+        <div class="text">
+            Then came our smooth conversations… 💬<br>
+            Talking to you felt so easy…<br><br>
+            “I found my home in you…” 💖
+        </div>
+        <div class="next" onclick="next()">Continue</div>
+    </div>
+
+    <div class="scene" id="scene3">
+        <div class="text">
+            We laughed… we shared… 😄<br>
+            Every moment became special…<br><br>
+            “You are my today and all my tomorrows.” ❤️
+        </div>
+        <div class="next" onclick="next()">Continue</div>
+    </div>
+
+    <div class="scene" id="scene4">
+        <div class="text">
+            Slowly… unknowingly… ❤️<br>
+            I fell in love with you…<br><br>
+            “I didn’t plan it… but it happened.” 💖
+        </div>
+        <div class="next" onclick="next()">Continue</div>
+    </div>
+
+    <div class="scene" id="scene5">
+        <div class="text">
+            The day I gathered courage… 💍<br>
+            And asked you to be mine forever…<br><br>
+            “My heart was yours already…” ❤️
+        </div>
+        <div class="next" onclick="next()">Continue</div>
+    </div>
+
+    <div class="scene" id="scene6">
+        <div class="text">
+            And when you said YES… 🥺❤️<br>
+            That moment changed everything…<br><br>
+            “I found my forever in you…” 💖
+        </div>
+        <div class="next" onclick="next()">Continue</div>
+    </div>
+
+    <div class="scene" id="scene7">
+        <div class="text">
+            The day we got married… 💒<br>
+            Two souls became one…<br><br>
+            “You complete me…” ❤️
+        </div>
+        <div class="next" onclick="next()">Continue</div>
+    </div>
+
+    <div class="scene" id="scene8">
+        <div class="text">
+            And now… 💞<br>
+            Life feels complete with you…<br><br>
+            “You are my forever and always…” ❤️
+        </div>
+        <div class="next" onclick="startGame()">Play</div>
+    </div>
+
+    <!-- HEART GAME -->
+    <div class="scene" id="scene9">
+        <div class="text">Tap 10 hearts ❤️</div>
+        <div>Score: <span id="score">0</span>/10</div>
+        <div class="game" id="game"></div>
+    </div>
+
+    <!-- QUIZ -->
+    <div class="scene" id="scene10">
+        <div class="text" id="qText"></div>
+        <div id="opts"></div>
+    </div>
+
+    <!-- END -->
+    <div class="scene" id="scene11">
+        <div class="text" id="finalText"></div>
+    </div>
+
+    <script>
+
+        let s = 1;
+        function next() {
+            document.getElementById("scene" + s).classList.remove("active");
+            s++;
+            document.getElementById("scene" + s).classList.add("active");
+
+            gsap.from("#scene" + s + " .text", { y: 60, opacity: 0, duration: 1 });
+        }
+
+        /* HEART GAME */
+        let count = 0;
+
+        function startGame() {
+            next();
+
+            const game = document.getElementById("game");
+
+            const interval = setInterval(() => {
+
+                if (count >= 10) {
+                    clearInterval(interval);
+                    next();
+                    startQuiz();
+                    return;
+                }
+
+                const h = document.createElement("div");
+                h.className = "heart";
+                h.innerHTML = "❤️";
+
+                h.style.left = Math.random() * 90 + "%";
+                h.style.top = Math.random() * 80 + "%";
+
+                h.onclick = (e) => {
+                    count++;
+                    document.getElementById("score").innerText = count;
+                    spark(e.clientX, e.clientY);
+                    h.remove();
+                };
+
+                game.appendChild(h);
+                setTimeout(() => h.remove(), 2000);
+
+            }, 500);
+        }
+
+        /* SPARK */
+        function spark(x, y) {
+            for (let i = 0; i < 12; i++) {
+                const s = document.createElement("div");
+                s.innerHTML = "✨";
+                s.style.position = "absolute";
+                s.style.left = x + "px";
+                s.style.top = y + "px";
+                document.body.appendChild(s);
+                setTimeout(() => s.remove(), 800);
+            }
+        }
+
+        /* QUIZ */
+        const qs = [
+            { q: "How much do you love Shaddil?", a: ["Forever ❤️", "A lot 💖", "Little 💕"], s: [3, 2, 1] },
+            { q: "What is he to you?", a: ["My world ❤️", "My love 💖", "Special 💕"], s: [3, 2, 1] },
+            { q: "What makes you happiest?", a: ["Being with him ❤️", "Talking 💖", "Memories 💕"], s: [3, 2, 1] },
+            { q: "Your future with him?", a: ["Forever ❤️", "Long 💖", "Hopefully 💕"], s: [3, 2, 1] }
+        ];
+
+        let qi = 0, score = 0;
+
+        function startQuiz() { loadQ(); }
+
+        function loadQ() {
+            const q = qs[qi];
+            document.getElementById("qText").innerText = q.q;
+
+            const o = document.getElementById("opts");
+            o.innerHTML = "";
+
+            q.a.forEach((t, i) => {
+                const d = document.createElement("div");
+                d.className = "option";
+                d.innerText = t;
+
+                d.onclick = () => {
+                    score += q.s[i];
+                    qi++;
+                    if (qi < qs.length) { loadQ(); }
+                    else { endGame(); }
+                };
+
+                o.appendChild(d);
+            });
+        }
+
+        function endGame() {
+            next();
+
+            let msg = "";
+
+            if (score >= 10) {
+                msg = "Saniya… ❤️ You are Shaddil’s soulmate 💖";
+            } else if (score >= 7) {
+                msg = "Our love is deep and beautiful ❤️";
+            } else {
+                msg = "Our love is growing stronger 💕";
+            }
+
+            document.getElementById("finalText").innerText = msg;
+        }
+
+    </script>
+
+</body>
+
+</html>
