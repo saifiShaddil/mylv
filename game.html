@@ -77,19 +77,25 @@
             cursor: pointer;
         }
 
-        /* QUIZ */
-        .option {
-            margin: 10px;
-            padding: 14px;
-            background: rgba(255, 77, 166, 0.2);
-            border-radius: 20px;
-            cursor: pointer;
-            transition: 0.3s;
-        }
+      .option{
+  margin:10px;
+  padding:14px;
+  background:rgba(255,77,166,0.2);
+  border-radius:20px;
+  cursor:pointer;
+  transition:0.3s;
+}
 
-        .option:hover {
-            transform: scale(1.05);
-            background: rgba(255, 77, 166, 0.4);
+.option.happy:hover{
+  cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" height="40" width="40"><text y="30" font-size="30">😊</text></svg>'), auto;
+}
+
+.option.sad:hover{
+  cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" height="40" width="40"><text y="30" font-size="30">😢</text></svg>'), auto;
+}
+
+        #guessOptions {
+            margin-top: 20px;
         }
     </style>
 </head>
@@ -179,14 +185,29 @@
         <div class="game" id="game"></div>
     </div>
 
+
     <!-- QUIZ -->
     <div class="scene" id="scene10">
         <div class="text" id="qText"></div>
         <div id="opts"></div>
     </div>
 
-    <!-- END -->
+    <!-- GUESS GAME -->
     <div class="scene" id="scene11">
+        <div class="text">
+            Final question… 💖 <br><br>
+            What matters most to Shaddil?
+        </div>
+
+        <div id="guessOptions">
+            <div class="option" onclick="guessAnswer(false)">Money 💰</div>
+            <div class="option" onclick="guessAnswer(true)">Saniya ❤️</div>
+            <div class="option" onclick="guessAnswer(false)">Work 💼</div>
+        </div>
+    </div>
+
+    <!-- END -->
+    <div class="scene" id="scene12">
         <div class="text" id="finalText"></div>
     </div>
 
@@ -284,6 +305,42 @@
 
                 o.appendChild(d);
             });
+        }
+
+        let guessCorrect = false;
+
+        /* GUESS GAME */
+        function guessAnswer(isCorrect) {
+            guessCorrect = isCorrect;
+
+            // sparkle effect
+            spark(window.innerWidth / 2, window.innerHeight / 2);
+
+            setTimeout(() => {
+                next(); // go to final scene
+                showFinalMessage();
+            }, 1000);
+        }
+
+        /* FINAL MESSAGE */
+        function showFinalMessage() {
+            let msg = "";
+
+            if (guessCorrect) {
+                msg = `
+    You truly know him… ❤️ <br><br>
+    Saniya… you are not just his love… <br>
+    You are his world, his peace, his forever 💖
+    `;
+            } else {
+                msg = `
+    Maybe you guessed wrong… 💕 <br><br>
+    But one thing is always right… <br>
+    Shaddil loves you more than anything ❤️
+    `;
+            }
+
+            document.getElementById("finalText").innerHTML = msg;
         }
 
         function endGame() {
