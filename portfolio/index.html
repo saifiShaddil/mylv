@@ -245,30 +245,31 @@
   /* alternating section depth */
   .sheet:nth-of-type(even){background:linear-gradient(180deg, rgba(95,180,229,0.035), transparent 60%);}
 
-  /* SCROLL RAIL — lives in the side gutter outside the content column,
-     only shown once that gutter is wide enough to not collide with text */
-  .rail{
-    position:fixed;top:50%;transform:translateY(-50%);z-index:90;
-    display:none;align-items:center;gap:14px;
+  /* NAV PROGRESS — lives inside the nav bar itself, so it can never
+     collide with page content. Thin fill bar on the nav's bottom edge
+     plus a compact sheet counter readout. */
+  .nav-progress-track{
+    position:absolute;left:0;bottom:0;height:2px;width:100%;
+    background:var(--grid-line-strong);
   }
-  @media(min-width:1320px){
-    .rail{
-      display:flex;
-      left:calc((100vw - 1180px) / 2 - 64px);
-    }
+  .nav-progress-fill{
+    height:100%;width:0%;
+    background:linear-gradient(90deg,var(--cyan),var(--amber));
+    transition:width .08s linear;
   }
-  .rail-line{position:relative;width:1px;height:220px;background:var(--grid-line-strong);}
-  .rail-fill{position:absolute;top:0;left:0;width:100%;height:0%;background:var(--cyan);transition:height .1s linear;}
-  .rail-ticks{position:absolute;left:0;top:0;height:100%;width:1px;display:flex;flex-direction:column;justify-content:space-between;}
-  .tick{
-    position:relative;left:-9px;background:none;border:none;cursor:pointer;
-    font-family:var(--mono);font-size:10px;color:var(--text-faint);letter-spacing:.05em;
-    padding:6px;transition:color .25s;
+  .sheet-counter{
+    font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--text-dim);
+    display:flex;align-items:center;gap:10px;
   }
-  .tick::before{content:'';position:absolute;left:9px;top:50%;width:6px;height:1px;background:var(--text-faint);transform:translateY(-50%);transition:background .25s,width .25s;}
-  .tick.active{color:var(--amber);}
-  .tick.active::before{background:var(--amber);width:12px;}
-  .tick:hover{color:var(--cyan);}
+  .sheet-counter .cur{color:var(--amber);}
+  .sheet-counter .bar{
+    width:64px;height:3px;background:var(--grid-line-strong);position:relative;overflow:hidden;
+  }
+  .sheet-counter .bar::after{
+    content:'';position:absolute;left:0;top:0;height:100%;width:var(--sc-pct,0%);
+    background:var(--cyan);transition:width .12s linear;
+  }
+  @media(max-width:480px){.sheet-counter .bar{display:none;}}
 
   /* CURSOR CROSSHAIR */
   .cx-v,.cx-h{position:fixed;pointer-events:none;background:rgba(95,180,229,0.14);z-index:80;}
@@ -371,6 +372,10 @@
 <nav>
   <div class="wrap">
     <a href="#top" class="brand">SS<em>_</em>DEV</a>
+    <div class="sheet-counter" id="sheetCounter" aria-hidden="true">
+      <span><span class="cur" id="scCur">00</span>/06</span>
+      <span class="bar" id="scBar"></span>
+    </div>
     <div class="navlinks">
       <a href="#skills">Skills</a>
       <a href="#experience">Experience</a>
@@ -378,20 +383,8 @@
       <a href="#contact">Contact</a>
     </div>
   </div>
+  <div class="nav-progress-track"><div class="nav-progress-fill" id="navProgressFill"></div></div>
 </nav>
-
-<div class="rail" aria-hidden="true">
-  <div class="rail-line"><div class="rail-fill" id="railFill"></div>
-    <div class="rail-ticks">
-      <button class="tick active" data-target="#top">00</button>
-      <button class="tick" data-target="#skills">02</button>
-      <button class="tick" data-target="#experience">03</button>
-      <button class="tick" data-target="#projects">04</button>
-      <button class="tick" data-target="#contributions">05</button>
-      <button class="tick" data-target="#contact">06</button>
-    </div>
-  </div>
-</div>
 
 <div class="cx-v" id="cxV"></div>
 <div class="cx-h" id="cxH"></div>
@@ -779,34 +772,30 @@
     });
   }
 
-  // rail scroll progress + active tick
-  const railFill = document.getElementById('railFill');
-  const ticks = document.querySelectorAll('.tick');
+  // nav progress bar + sheet counter + active nav link
+  const navProgressFill = document.getElementById('navProgressFill');
+  const scCur = document.getElementById('scCur');
+  const scBar = document.getElementById('scBar');
   const navA = document.querySelectorAll('.navlinks a');
-  const railTargets = Array.from(ticks).map(t => document.querySelector(t.dataset.target)).filter(Boolean);
+  const sectionOrder = ['#top','#skills','#experience','#projects','#contributions','#contact'];
+  const sectionEls = sectionOrder.map(id => document.querySelector(id)).filter(Boolean);
 
-  function updateRail(){
+  function updateNavProgress(){
     const scrollTop = window.scrollY;
     const docHeight = document.body.scrollHeight - window.innerHeight;
     const pct = docHeight > 0 ? Math.min(100, (scrollTop / docHeight) * 100) : 0;
-    railFill.style.height = pct + '%';
+    navProgressFill.style.width = pct + '%';
+    scBar.style.setProperty('--sc-pct', pct + '%');
 
     let activeIdx = 0;
-    railTargets.forEach((sec, i) => {
+    sectionEls.forEach((sec, i) => {
       if (sec.getBoundingClientRect().top - window.innerHeight/2 < 0) activeIdx = i;
     });
-    ticks.forEach((t,i) => t.classList.toggle('active', i === activeIdx));
-    navA.forEach(a => {
-      const match = a.getAttribute('href') === ticks[activeIdx]?.dataset.target;
-      a.classList.toggle('active', !!match);
-    });
+    scCur.textContent = String(activeIdx + 1).padStart(2,'0');
+    navA.forEach(a => a.classList.toggle('active', a.getAttribute('href') === sectionOrder[activeIdx]));
   }
-  window.addEventListener('scroll', updateRail, { passive:true });
-  updateRail();
-
-  ticks.forEach(t => t.addEventListener('click', () => {
-    document.querySelector(t.dataset.target)?.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth' });
-  }));
+  window.addEventListener('scroll', updateNavProgress, { passive:true });
+  updateNavProgress();
 
   // animated stat counters
   const counters = document.querySelectorAll('.num[data-count]');
