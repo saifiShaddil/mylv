@@ -1,0 +1,9 @@
+html,body{margin:0;height:100%;font-family:Arial}
+header{padding:10px;background:#1b4332;color:#fff}
+.search{position:relative;display:flex;gap:8px;max-width:500px}
+#search{flex:1;padding:8px}
+#go{padding:8px 14px}
+#suggestions{position:absolute;top:40px;left:0;right:70px;background:#fff;color:#000;z-index:1000;border-radius:4px;max-height:220px;overflow:auto}
+.item{padding:8px;cursor:pointer}
+.item:hover{background:#eee}
+#map{height:calc(100% - 72px)}
